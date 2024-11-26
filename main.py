@@ -6,7 +6,7 @@ KAFKA_TOPIC_NAME = "posStreaming"
 KAFKA_SINK_TOPIC = "posSink"
 KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 # CHECKPOINT_LOCATION = "LOCAL DIRECTORY LOCATION (FOR DEBUGGING PURPOSES)"
-CHECKPOINT_LOCATION = "/Users/gmcreynolds/PycharmProjects/cis531/pySparkProject/checkpoint"
+CHECKPOINT_LOCATION = "/Users/gmcreynolds/PycharmProjects/cis531/pySparkProject/checkpoint/a"
 
 if __name__ == "__main__":
     # STEP 1 : creating spark session object
