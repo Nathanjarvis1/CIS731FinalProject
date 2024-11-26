@@ -33,25 +33,25 @@ if __name__ == "__main__":
 
     # STEP 3 : Applying suitable schema
 
-    sample_schema = (
+    inventory_changed_schema = (
         StructType()
-        .add("col_a", StringType())
-        .add("col_b", StringType())
-        .add("col_c", StringType())
-        .add("col_d", StringType())
+        .add("trans_id", StringType())
+        .add("item_id", IntegerType())
+        .add("store_id", IntegerType())
+        .add("date_time", StringType())
+        .add("quantity", IntegerType())
+        .add("change_type_id", IntegerType())
     )
 
     info_dataframe = base_df.select(
-        from_json(col("value"), sample_schema).alias("info"), "timestamp"
+        from_json(col("date_time"), inventory_changed_schema).alias("date_obj"), "timestamp"
     )
 
     info_dataframe.printSchema()
-    info_df_fin = info_dataframe.select("info.*", "timestamp")
-    info_df_fin.printSchema()
 
     # STEP 4 : Creating query using structured streaming
 
-    query = info_df_fin.groupBy("col_a").agg(
+    query = info_dataframe.groupBy("col_a").agg(
         approx_count_distinct("col_b").alias("col_b_alias"),
         count(col("col_c")).alias("col_c_alias"),
     )
