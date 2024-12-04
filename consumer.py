@@ -11,6 +11,7 @@ KAFKA_TOPIC_NAME = "posStreaming"
 KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 
 latencies: List[float] = []
+rowCount: List[float] = []
 
 
 def process_batch(df, epoch_id):
@@ -18,11 +19,13 @@ def process_batch(df, epoch_id):
         "delta_quantity", ascending=True)
     end_time = time.time()
     avg_sent_time = df.agg(avg("sent_time")).first()[0]
-    latency = end_time - avg_sent_time
-    if epoch_id > 0:
-        # skip the first batch
-        latencies.append(latency)
-        print(f"Avg. latency {epoch_id}: {sum(latencies) / len(latencies)}")
+    if avg_sent_time is not None:
+        latency = end_time - avg_sent_time
+        if epoch_id > 0:
+            # skip the first batch
+            latencies.append(latency)
+            rowCount.append(df.count())
+            print(f"Avg. latency {epoch_id}: {sum(latencies) / len(latencies)}. With avg of  {sum(rowCount) / len(rowCount)}")
     aggregated_df.show()
 
 
