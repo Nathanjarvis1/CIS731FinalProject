@@ -4,37 +4,34 @@ from pyspark.sql.types import *
 import time
 from typing import List
 
-
+from drivers.mongodb import add_mongo_batch
 from main import CHECKPOINT_LOCATION
 
 KAFKA_TOPIC_NAME = "posStreaming"
 KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 
-latencies: List[float] = []
-rowCount: List[float] = []
+results = []
 
 
 def process_batch(df, epoch_id):
     aggregated_df = df.groupBy("store_id", "item_id").agg(pyspark_sum("quantity").alias("delta_quantity")).orderBy(
         "delta_quantity", ascending=True)
+    insert_time = add_mongo_batch(aggregated_df)
     end_time = time.time()
     avg_sent_time = df.agg(avg("sent_time")).first()[0]
     if avg_sent_time is not None:
         latency = end_time - avg_sent_time
-        if epoch_id > 0:
-            # skip the first batch
-            latencies.append(latency)
-            rowCount.append(df.count())
-            print(f"Avg. latency {epoch_id}: {sum(latencies) / len(latencies)}. With avg of  {sum(rowCount) / len(rowCount)}")
-    aggregated_df.show()
+        results.append({"rows": df.count(), "latency": latency, "insert_time": insert_time})
+        print(epoch_id)
+        aggregated_df.show()
 
 
 if __name__ == "__main__":
     spark = (
         SparkSession.builder.appName("CIS533 POS Streaming Consumer")
         .master("local[*]")
-        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3")
-        # .config("spark.streaming.concurrentJobs", "8")
+        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3,org.mongodb.spark:mongo-spark-connector_2.12:10.4.0")
+        .config("spark.mongodb.write.connection.uri", "mongodb://localhost:27017/cis533.batch_latency")
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("ERROR")
