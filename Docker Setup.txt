@@ -1,0 +1,38 @@
+﻿How to start docker after all dependencies are met
+
+
+Make new container: docker-compose -f compose.yaml up -d
+
+
+Access that container: docker exec -it broker bash
+
+
+Create all of the topics: 
+/opt/kafka/bin/kafka-topics.sh --create --topic InventorySnapshotOnline --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 
+
+
+/opt/kafka/bin/kafka-topics.sh --create --topic InventorySnapshotStore001 --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 
+
+
+/opt/kafka/bin/kafka-topics.sh --create --topic InventoryChangeOnline --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 
+
+
+/opt/kafka/bin/kafka-topics.sh --create --topic InventoryChangeStore001 --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+
+/opt/kafka/bin/kafka-topics.sh --create --topic InventoryChangeType --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 
+
+
+/opt/kafka/bin/kafka-topics.sh --create --topic Store --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 
+
+
+/opt/kafka/bin/kafka-topics.sh --create --topic Item --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1 
+
+
+How to inspect if messages were sent
+
+
+Go back into container: docker exec -it broker bash
+
+
+/opt/kafka/bin/kafka-console-consumer.sh --topic <topic name> --from-beginning --bootstrap-server localhost:9092
