@@ -4,7 +4,7 @@ from pyspark.sql.types import *
 import time
 from typing import List
 
-from drivers.mongodb import add_mongo_batch
+from drivers.mongodb import aggregate_mongo_batch
 from main import CHECKPOINT_LOCATION
 
 KAFKA_TOPIC_NAME = "posStreaming"
@@ -13,7 +13,9 @@ KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 results = []
 
 def process_batch(df, epoch_id):
-    insert_time = add_mongo_batch(df)
+    aggregated_df = df.groupBy("store_id", "item_id").agg(pyspark_sum("quantity").alias("delta_quantity")).orderBy(
+        "delta_quantity", ascending=True)
+    insert_time = aggregate_mongo_batch(aggregated_df)
     end_time = time.time()
     avg_sent_time = df.agg(avg("sent_time")).first()[0]
     if avg_sent_time is not None:
