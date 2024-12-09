@@ -12,18 +12,15 @@ KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 
 results = []
 
-
 def process_batch(df, epoch_id):
-    aggregated_df = df.groupBy("store_id", "item_id").agg(pyspark_sum("quantity").alias("delta_quantity")).orderBy(
-        "delta_quantity", ascending=True)
-    insert_time = add_mongo_batch(aggregated_df)
+    insert_time = add_mongo_batch(df)
     end_time = time.time()
     avg_sent_time = df.agg(avg("sent_time")).first()[0]
     if avg_sent_time is not None:
         latency = end_time - avg_sent_time
         results.append({"rows": df.count(), "latency": latency, "insert_time": insert_time})
         print(epoch_id)
-        aggregated_df.show()
+        df.show()
 
 
 if __name__ == "__main__":
@@ -31,7 +28,7 @@ if __name__ == "__main__":
         SparkSession.builder.appName("CIS533 POS Streaming Consumer")
         .master("local[*]")
         .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3,org.mongodb.spark:mongo-spark-connector_2.12:10.4.0")
-        .config("spark.mongodb.write.connection.uri", "mongodb://localhost:27017/cis533.batch_latency")
+        .config("spark.mongodb.write.connection.uri", "mongodb://localhost:27017/cis533.single_latency")
         .getOrCreate()
     )
     spark.sparkContext.setLogLevel("ERROR")
