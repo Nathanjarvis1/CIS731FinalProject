@@ -14,6 +14,8 @@ KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
 results = []
 
 def process_batch(df, epoch_id):
+    aggregated_df = df.groupBy("store_id", "item_id").agg(pyspark_sum("quantity").alias("delta_quantity")).orderBy(
+        "delta_quantity", ascending=True)
     insert_time = add_sql_batch(df)
     end_time = time.time()
     avg_sent_time = df.agg(avg("sent_time")).first()[0]
