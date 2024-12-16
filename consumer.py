@@ -36,11 +36,12 @@ def consume_and_export_all():
             record["change_type"] = CHANGE_TYPE_LOOKUP.get(record.get("change_type_id"), "N/A")
             record["action"] = record["change_type"]  # Add action for changes
             changes.append(record)
-
+            
+    # Print length of snapshots to insure right number is being processed
     print(f"Total snapshots collected: {len(snapshots)}")
     print(f"Total changes collected: {len(changes)}")
 
-    # Convert to DataFrames
+    # Make df
     snapshots_df = pd.DataFrame(snapshots)
     changes_df = pd.DataFrame(changes)
 
