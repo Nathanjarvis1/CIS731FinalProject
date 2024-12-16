@@ -10,7 +10,7 @@ ITEM_FILE = f"{DATA_DIR}item.csv"
 STORE_FILE = f"{DATA_DIR}store.csv"
 CHANGE_TYPE_FILE = f"{DATA_DIR}inventory_change_type.csv"
 
-# Define schemas
+# Define schemas based off of databricks notebooks
 item_schema = StructType([
     StructField('item_id', IntegerType(), True),
     StructField('name', StringType(), True),
