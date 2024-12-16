@@ -14,10 +14,10 @@ KAFKA_TOPICS = {
     "InventoryChangeStore001": "InventoryChangeStore001"
 }
 
-# Define schemas for datasets
+# Define schemas based off of databricks notebooks
 inventory_snapshot_schema = StructType([
     StructField('item_id', IntegerType()),
-    StructField('employee_id', IntegerType()),
+    StructField('employee_id', IntegerType()),       
     StructField('store_id', IntegerType()),
     StructField('date_time', StringType()),  
     StructField('quantity', IntegerType())
@@ -46,10 +46,10 @@ def preprocess_and_send_to_kafka(file_path, schema, topic, producer):
     """Read, preprocess, and send data to Kafka."""
     df = spark.read.csv(file_path, header=True, schema=schema)
     
-    df = df.withColumn('date_time', f.to_timestamp('date_time', 'M/d/yyyy H:mm'))
-    
-    if topic in ["InventoryChangeOnline", "InventoryChangeStore001"]:
-        df = df.withColumn('trans_id', f.expr('substring(trans_id, 2, length(trans_id)-2)'))
+    df = df.withColumn('date_time', f.to_timestamp('date_time', 'M/d/yyyy H:mm'))            # section from databricks notebooks
+
+    if topic in ["InventoryChangeOnline", "InventoryChangeStore001"]:  
+        df = df.withColumn('trans_id', f.expr('substring(trans_id, 2, length(trans_id)-2)'))   # section from databricks notebooks
         
     data = df.toJSON().collect()
     
