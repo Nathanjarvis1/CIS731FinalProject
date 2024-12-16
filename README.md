@@ -13,3 +13,4 @@ Across different branches the following folders are used:
 - `data/`: Contains the .csv files from the Databricks workspace
 - `drivers/`: Contains the code for interfacing with Mongo and PostgreSQL
 - `slides/`: Contains the slides for the project
+- `paper/`: Contains the paper for the project
